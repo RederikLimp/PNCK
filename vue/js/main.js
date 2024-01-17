@@ -3,10 +3,11 @@ let app = new Vue({
     el: '#app',
     data: {
         product: "Socks",
+        brand: 'Vue Mastery',
         description: "A pair of warm, fuzzy socks",
         image: "./assets/vmSocks-blue-onWhite.jpg",
         altText: "A pair of socks",
-        inStock: true,
+        inStock: false,
         inventory: 100,
         details: ['80% cotton', '20% polyester', 'Gender-neutral'],
         variants: [
