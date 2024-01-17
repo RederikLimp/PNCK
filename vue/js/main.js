@@ -14,110 +14,114 @@ Vue.component("product", {
           <product-details :details='details'></product-details>
        <div  @mouseover="updateProduct(index)" class="color-box" v-for="(variant, index) in variants" :key="variant.variantId" :style="{ backgroundColor:variant.variantColor }">
        </div>
+       <button v-on:click="removeFromCart">Remove from cart</button>
+       <button v-on:click="addToCart" :disabled="!inStock" :class="{ disabledButton: !inStock }">Add to cart</button>
        <ul v-for="size in sizes">
           <li>{{size}}</li>
        </ul>
-       <div class="cart">
-          <p>Cart({{ cart }})</p>
-          <button v-on:click="removeFromCart">Remove from cart</button>
-          <button v-on:click="addToCart" :disabled="!inStock" :class="{ disabledButton: !inStock }">Add to cart</button>
        </div>
-       
-      </div>
-      <p>Shipping: {{ shipping }}</p>
-      <a :href="link">More products like this</a>
-    </div>
-    `,
-    props: {
-      premium: {
-        type: Boolean,
-        required: true,
-      },
-    },
-  
-    data() {
-      return {
-        product: "Socks",
-        brand: "Vue Mastery",
-        description: "A pair of warm, fuzzy socks",
-        selectedVariant: 0,
-        altText: "A pair of socks",
-        link: "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=socks",
-        inventory: 100,
-        onSale: true,
-        details: ["80% cotton", "20% polyester", "Gender-neutral"],
-        variants: [
-          {
-            variantId: 2234,
-            variantColor: "green",
-            variantImage: "./assets/vmSocks-green-onWhite.jpg",
-            variantQuantity: 10,
-          },
-          {
-            variantId: 2235,
-            variantColor: "blue",
-            variantImage: "./assets/vmSocks-blue-onWhite.jpg",
-            variantQuantity: 0,
-          },
-        ],
-        sizes: ["S", "M", "L", "XL", "XXL", "XXXL"],
-        cart: 0,
-      };
+       <p>Shipping: {{ shipping }}</p>
+       <a :href="link">More products like this</a>
+     </div>
+     `,
+     props: {
+       premium: {
+         type: Boolean,
+         required: true,
+       },
+     },
+     data() {
+       return {
+         product: "Socks",
+         brand: "Vue Mastery",
+         description: "A pair of warm, fuzzy socks",
+         selectedVariant: 0,
+         altText: "A pair of socks",
+         link: "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=socks",
+         inventory: 100,
+         onSale: true,
+         details: ["80% cotton", "20% polyester", "Gender-neutral"],
+         variants: [
+           {
+             variantId: 2234,
+             variantColor: "green",
+             variantImage: "./assets/vmSocks-green-onWhite.jpg",
+             variantQuantity: 10,
+           },
+           {
+             variantId: 2235,
+             variantColor: "blue",
+             variantImage: "./assets/vmSocks-blue-onWhite.jpg",
+             variantQuantity: 1,
+            },
+          ],
+          sizes: ["S", "M", "L", "XL", "XXL", "XXXL"],
+        };
     },
     methods: {
       removeFromCart() {
-        if (this.cart > 0) {
-          this.cart -= 1;
-        }
-      },
-      addToCart() {
-        this.cart += 1;
-      },
-      updateProduct(index) {
-        this.selectedVariant = index;
-      },
+        this.$emit('remove-from-cart', this.variants[this.selectedVariant].variantId);
     },
-    computed: {
-      title() {
-        return this.brand + " " + this.product;
-      },
-      image() {
-        return this.variants[this.selectedVariant].variantImage;
-      },
-      inStock() {
-        return this.variants[this.selectedVariant].variantQuantity;
-      },
-      sale() {
-        if (this.onSale) {
-          return "Проводится распродажа " + this.brand + this.product;
-        }
-        return "Распродажа не проводится";
-      },
-      shipping() {
-        if (this.premium) {
-          return "Free";
-        } else {
-          return 2.99;
-        }
-      },
+    addToCart() {
+        this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId);
     },
-  });
-  
-  Vue.component("product-details", {
-    template: `<ul  class="product-details">
-    <li v-for='detail in details'>{{detail}}</li>
-    </ul>`,
-    props: {
-      details: {
-        type: Array,
-        required: true,
-      },
+    updateProduct(index) {
+      this.selectedVariant = index;
     },
-  });
-  
-  let app = new Vue({
-    el: "#app",
-    data: {
-      premium: true,
+  },
+  computed: {
+    title() {
+      return this.brand + " " + this.product;
     },
-  });
+    image() {
+      return this.variants[this.selectedVariant].variantImage;
+    },
+    inStock() {
+      return this.variants[this.selectedVariant].variantQuantity;
+    },
+    sale() {
+      if (this.onSale) {
+        return "Проводится распродажа " + this.brand + this.product;
+      }
+      return "Распродажа не проводится";
+    },
+    shipping() {
+      if (this.premium) {
+        return "Free";
+      } else {
+        return 2.99;
+      }
+    },
+  },
+});
+Vue.component("product-details", {
+  template: `<ul  class="product-details">
+  <li v-for='detail in details'>{{detail}}</li>
+  </ul>`,
+  props: {
+    details: {
+      type: Array,
+      required: true,
+    },
+  },
+});
+let app = new Vue({
+  el: "#app",
+  data: {
+    premium: true,
+    cart: [],
+  },
+  methods: {
+    updateplusCart(id) {
+        this.cart.push(id);
+    },
+    updateminusCart(id) {
+        console.log("Удалён объект ", id)
+            let index = this.cart.indexOf(id);
+            if (index !== -1) {
+                this.cart.splice(index, 1);
+              }
+    }
+ }
+
+});  
